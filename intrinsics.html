@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>内建元素 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html" class="active">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="内置内建元素">内置内建元素</h1>
+<p>这些就是 Gtk 组件，无需显式导入即可使用。例如 <code><box /></code> 和 <code><Gtk.Box /></code> 是完全相同的。</p>
+<h2 id="gtk4">Gtk4</h2>
+<h3 id="box">box</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Box.html">Gtk.Box</a></p>
+<pre><code class="language-tsx">&lt;box orientation={Gtk.Orientation.HORIZONTAL}&gt;
+  &lt;Child /&gt;
+  &lt;Child /&gt;
+  &lt;Child /&gt;
+&lt;/box&gt;</code></pre>
+<h3 id="button">button</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Button.html">Gtk.Button</a></p>
+<pre><code class="language-tsx">&lt;button onClicked={() =&gt; print("已点击")}&gt;
+  &lt;Child /&gt;
+&lt;/button&gt;</code></pre>
+<h3 id="centerbox">centerbox</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.CenterBox.html">Gtk.CenterBox</a></p>
+<pre><code class="language-tsx">&lt;centerbox orientation={Gtk.Orientation.HORIZONTAL}&gt;
+  &lt;Child $type="start" /&gt;
+  &lt;Child $type="center" /&gt;
+  &lt;Child $type="end" /&gt;
+&lt;/centerbox&gt;</code></pre>
+<h3 id="drawingarea">drawingarea</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.DrawingArea.html">Gtk.DrawingArea</a></p>
+<pre><code class="language-tsx">&lt;drawingarea
+  $={(self) =&gt;
+    self.set_draw_func((area, cr, width, height) =&gt; {
+      //
+    })
+  }
+/&gt;</code></pre>
+<h3 id="entry">entry</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Entry.html">Gtk.Entry</a></p>
+<pre><code class="language-tsx">&lt;entry
+  placeholderText="开始输入..."
+  text=""
+  onNotifyText={({ text }) =&gt; print(text)}
+/&gt;</code></pre>
+<h3 id="image">image</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Image.html">Gtk.Image</a></p>
+<pre><code class="language-tsx">&lt;image
+  file="/path/to/file.png"
+  iconName="system-search-symbolic"
+  pixelSize={16}
+/&gt;</code></pre>
+<h3 id="label">label</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Label.html">Gtk.Label</a></p>
+<pre><code class="language-tsx">&lt;label
+  label="&lt;span foreground='blue'&gt;文本&lt;/span&gt;"
+  useMarkup
+  wrap
+  ellipsize={Pango.EllipsizeMode.END}
+/&gt;</code></pre>
+<h3 id="levelbar">levelbar</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.LevelBar.html">Gtk.LevelBar</a></p>
+<pre><code class="language-tsx">&lt;levelbar
+  orientation={Gtk.Orientation.HORIZONTAL}
+  widthRequest={200}
+  value={0.5}
+/&gt;</code></pre>
+<h3 id="menubutton">menubutton</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.MenuButton.html">Gtk.MenuButton</a></p>
+<pre><code class="language-tsx">&lt;menubutton&gt;
+  按钮内容
+  &lt;popover&gt;弹出内容&lt;/popover&gt;
+&lt;/menubutton&gt;</code></pre>
+<h3 id="overlay">overlay</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Overlay.html">Gtk.Overlay</a></p>
+<pre><code class="language-tsx">&lt;overlay&gt;
+  &lt;Child /&gt;
+  &lt;Child $type="overlay" /&gt;
+  &lt;Child $type="overlay" /&gt;
+&lt;/overlay&gt;</code></pre>
+<h3 id="revealer">revealer</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Revealer.html">Gtk.Revealer</a></p>
+<pre><code class="language-tsx">&lt;revealer
+  transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
+  revealChild={true}
+  onNotifyChildRevealed={() =&gt; print("动画完成")}
+&gt;
+  &lt;Child /&gt;
+&lt;/revealer&gt;</code></pre>
+<h3 id="scrolledwindow">scrolledwindow</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.ScrolledWindow.html">Gtk.ScrolledWindow</a></p>
+<pre><code class="language-tsx">&lt;scrolledwindow maxContentHeight={500}&gt;
+  &lt;Child /&gt;
+&lt;/scrolledwindow&gt;</code></pre>
+<h3 id="slider">slider</h3>
+<p><a href="https://aylur.github.io/libastal/astal4/class.Slider.html">Astal.Slider</a></p>
+<pre><code class="language-tsx">&lt;slider
+  value={0.5}
+  min={0}
+  max={1}
+  onChangeValue={({ value }) =&gt; print(value)}
+/&gt;</code></pre>
+<h3 id="stack">stack</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Stack.html">Gtk.Stack</a></p>
+<pre><code class="language-tsx">&lt;stack visibleChildName="child2"&gt;
+  &lt;Child $type="named" name="child1" /&gt;
+  &lt;Child $type="named" name="child2" /&gt;
+&lt;/stack&gt;</code></pre>
+<h3 id="switch">switch</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.Switch.html">Gtk.Switch</a></p>
+<pre><code class="language-tsx">&lt;switch active={true} onNotifyActive={({ active }) =&gt; print(active)} /&gt;</code></pre>
+<h3 id="togglebutton">togglebutton</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.ToggleButton.html">Gtk.ToggleButton</a></p>
+<pre><code class="language-tsx">&lt;togglebutton active={true} onToggled={({ active }) =&gt; print(active)} /&gt;</code></pre>
+<h3 id="window">window</h3>
+<p><a href="https://aylur.github.io/libastal/astal4/class.Window.html">Astal.Window</a></p>
+<pre><code class="language-tsx">&lt;window
+  visible
+  namespace="bar"
+  class="Bar"
+  monitor={0}
+  exclusivity={Astal.Exclusivity.EXCLUSIVE}
+  keymode={Astal.Keymode.ON_DEMAND}
+  anchor={
+    Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT | Astal.WindowAnchor.RIGHT
+  }
+/&gt;</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+在 Gtk4 中，窗口默认不可见，所以不要忘记传递 <code>visible</code>。</p>
+</div>
+<h2 id="gtk3">Gtk3</h2>
+<h3 id="box">box</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.Box.html">Gtk.Box</a></p>
+<pre><code class="language-tsx">&lt;box orientation={Gtk.Orientation.HORIZONTAL}&gt;
+  &lt;Child /&gt;
+  &lt;Child /&gt;
+  &lt;Child /&gt;
+&lt;/box&gt;</code></pre>
+<h3 id="button">button</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.Button.html">Gtk.Button</a></p>
+<pre><code class="language-tsx">&lt;button onClicked={() =&gt; print("已点击")}&gt;
+  &lt;Child /&gt;
+&lt;/button&gt;</code></pre>
+<h3 id="centerbox">centerbox</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.CenterBox.html">Astal.CenterBox</a></p>
+<pre><code class="language-tsx">&lt;centerbox orientation={Gtk.Orientation.HORIZONTAL}&gt;
+  &lt;Child $type="start" /&gt;
+  &lt;Child $type="center" /&gt;
+  &lt;Child $type="end" /&gt;
+&lt;/centerbox&gt;</code></pre>
+<h3 id="circularprogress">circularprogress</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.CircularProgress.html">Astal.CircularProgress</a></p>
+<pre><code class="language-tsx">&lt;circularprogress value={0.5} startAt={0.75} endAt={0.75}&gt;
+  &lt;icon /&gt;
+&lt;/circularprogress&gt;</code></pre>
+<pre><code class="language-css">circularprogress {
+  color: green;
+  background-color: black;
+  font-size: 6px;
+  margin: 2px;
+  min-width: 32px;
+}</code></pre>
+<h3 id="drawingarea">drawingarea</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.DrawingArea.html">Gtk.DrawingArea</a></p>
+<pre><code class="language-tsx">&lt;drawingarea
+  onDraw={(self, cr) =&gt; {
+    //
+  }}
+/&gt;</code></pre>
+<h3 id="entry">entry</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.Entry.html">Gtk.Entry</a></p>
+<pre><code class="language-tsx">&lt;entry
+  onChanged={({ text }) =&gt; print("文本已更改", text)}
+  onActivate={({ text }) =&gt; print("回车", text)}
+/&gt;</code></pre>
+<h3 id="eventbox">eventbox</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.EventBox.html">Astal.EventBox</a></p>
+<pre><code class="language-tsx">&lt;eventbox
+  onClick={(_, event) =&gt; {
+    print(event.modifier, event.button)
+  }}
+/&gt;</code></pre>
+<h3 id="icon">icon</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Icon.html">Astal.Icon</a></p>
+<pre><code class="language-tsx">&lt;icon
+  // 命名图标或文件路径
+  icon="/path/to/file.png"
+  icon="missing-symbolic"
+/&gt;</code></pre>
+<pre><code class="language-css">icon {
+  font-size: 16px;
+}</code></pre>
+<h3 id="label">label</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Label.html">Astal.Label</a></p>
+<pre><code class="language-tsx">&lt;label label="你好" maxWidthChars={16} wrap /&gt;</code></pre>
+<h3 id="levelbar">levelbar</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.LevelBar.html">Astal.LevelBar</a></p>
+<pre><code class="language-tsx">&lt;levelbar value={0.5} widthRequest={200} /&gt;</code></pre>
+<h3 id="overlay">overlay</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Overlay.html">Astal.Overlay</a></p>
+<pre><code class="language-tsx">&lt;overlay&gt;
+  &lt;Child&gt;子元素&lt;/Child&gt;
+  &lt;Child&gt;覆盖层 1&lt;/Child&gt;
+&lt;/overlay&gt;</code></pre>
+<h3 id="revealer">revealer</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.Revealer.html">Gtk.Revealer</a></p>
+<pre><code class="language-tsx">&lt;revealer
+  transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
+  revealChild={true}
+  onNotifyChildRevealed={() =&gt; print("动画完成")}
+&gt;
+  &lt;Child /&gt;
+&lt;/revealer&gt;</code></pre>
+<h3 id="scrollable">scrollable</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Scrollable.html">Astal.Scrollable</a></p>
+<pre><code class="language-tsx">&lt;scrollable heightRequest={100}&gt;
+  &lt;Child /&gt;
+&lt;/scrollable&gt;</code></pre>
+<h3 id="slider">slider</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Slider.html">Astal.Slider</a></p>
+<pre><code class="language-tsx">&lt;slider widthRequest={100} onDragged={({ value }) =&gt; print(value)} /&gt;</code></pre>
+<h3 id="stack">stack</h3>
+<p><a href="https://aylur.github.io/libastal/astal3/class.Stack.html">Astal.Stack</a></p>
+<pre><code class="language-tsx">&lt;stack visibleChildName="child2"&gt;
+  &lt;Child name="child1" /&gt;
+  &lt;Child name="child2" /&gt;
+&lt;/stack&gt;</code></pre>
+<h3 id="switch">switch</h3>
+<p><a href="https://docs.gtk.org/gtk3/class.Switch.html">Gtk.Switch</a></p>
+<pre><code class="language-tsx">&lt;switch active={true} onNotifyActive={({ active }) =&gt; print(active)} /&gt;</code></pre>
+<h3 id="togglebutton">togglebutton</h3>
+<p><a href="https://docs.gtk.org/gtk4/class.ToggleButton.html">Gtk.ToggleButton</a></p>
+<pre><code class="language-tsx">&lt;togglebutton active={true} onToggled={({ active }) =&gt; print(active)} /&gt;</code></pre>
+<h3 id="window">window</h3>
+<p><a href="https://aylur.github.io/libastal/astal4/class.Window.html">Astal.Window</a></p>
+<pre><code class="language-tsx">&lt;window
+  namespace="bar"
+  class="Bar"
+  monitor={0}
+  exclusivity={Astal.Exclusivity.EXCLUSIVE}
+  keymode={Astal.Keymode.ON_DEMAND}
+  anchor={
+    Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT | Astal.WindowAnchor.RIGHT
+  }
+/&gt;</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>安装 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html" class="active">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="安装">安装</h1>
+<h2 id="arch-linux">Arch Linux</h2>
+<p>维护者: <a href="https://github.com/kotontrion">@kotontrion</a></p>
+<pre><code class="language-sh">yay -S aylurs-gtk-shell-git</code></pre>
+<h2 id="nix">Nix</h2>
+<p>维护者: <a href="https://github.com/Aylur">@Aylur</a></p>
+<pre><code class="language-sh">nix shell github:aylur/ags</code></pre>
+<p>了解更多关于在 <a href="nix.html">Nix</a> 上运行 AGS 的信息。</p>
+<h2 id="从源码安装">从源码安装</h2>
+<ol>
+<li>安装以下三个
+<p>   <a href="https://aylur.github.io/astal/guide/installation">Astal 包</a></p>
+<ul>
+<li>astal-io</li>
+<li>astal3</li>
+<li>astal4</li>
+</ul></li>
+<li>安装依赖
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-0" id="cgt-0-0" checked>
+<label for="cgt-0-0"><i class="devicon-archlinux-plain" /> Arch</label>
+<input type="radio" name="cg-0" id="cgt-0-1">
+<label for="cgt-0-1"><i class="devicon-fedora-plain" /> Fedora</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-sh">sudo pacman -Syu \
+    npm meson ninja go gobject-introspection \
+    gtk3 gtk-layer-shell \
+    gtk4 gtk4-layer-shell</code></pre></div>
+<div class=""><pre><code class="language-sh">sudo dnf install \
+    npm meson ninja golang gobject-introspection-devel \
+    gtk3-devel gtk-layer-shell-devel \
+    gtk4-devel gtk4-layer-shell-devel</code></pre></div>
+</div></div></li>
+<li>克隆并安装 AGS
+<pre><code class="language-sh">git clone https://github.com/aylur/ags.git
+cd ags
+npm install
+meson setup build
+meson install -C build</code></pre></li>
+</ol>
+<div class="important-box">
+<p class="box-title">IMPORTANT</p>
+<p>
+默认情况下，meson 安装到 <code>/usr/local</code> 目录。</p>
+</div>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

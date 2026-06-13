@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>常见问题 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html" class="active">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="常见问题解答">常见问题解答</h1>
+<h2 id="标准库">标准库</h2>
+<p>GJS 不包含你可能用惯的 Node.js API。你可以在 <a href="https://docs.gtk.org/glib/">GLib</a> 和 <a href="https://docs.gtk.org/gio/">Gio</a> 中找到大多数 API 的替代方案。</p>
+<h2 id="避免使用-jsx">避免使用 JSX</h2>
+<p>JSX 语法完全是可选的。在底层，它只是<a href="https://aylur.github.io/gnim/jsx#jsx-expressions-and-jsx-function">函数组合</a>的语法糖。</p>
+<pre><code class="language-tsx">function Bar() {
+  // [!code --:5]
+  return (
+    &lt;window name="Bar"&gt;
+      &lt;box /&gt;
+    &lt;/window&gt;
+  )
+  // [!code ++:4]
+  return jsx(Astal.Window, {
+    name: "Bar",
+    children: [jsx(Gtk.Box, {})],
+  })
+}</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+你可以将 Gtk/Astal 组件包装在一个简单的函数中，以实现 AGSv1 中使用的语法：
+
+``<code>ts
+import { CCProps, jsx } from "ags"
+import { Gtk, Astal } from "ags/gtk4"
+
+const Box = (props: Partial<CCProps<Gtk.Box, Gtk.Box.ConstructorProps>&gt;) =&gt;
+  jsx(Gtk.Box, props)
+
+const Window = (
+  props: Partial<CCProps<Astal.Window, Astal.Window.ConstructorProps>&gt;,
+) =&gt; jsx(Astal.Window, props)
+
+function Bar() {
+  return Window({
+    name: "Bar",
+    children: [Box({ children: ["你好啊"] })],
+  })
+}
+</code>``</p>
+</div>
+<h2 id="显示器-id-与合成器不匹配">显示器 ID 与合成器不匹配</h2>
+<p>窗口期望的显示器 id 属性是由 Gdk 映射的，并不总是与合成器一致。请改用 <code>gdkmonitor</code> 属性，它期望一个 <code>Gdk.Monitor</code> 对象。</p>
+<pre><code class="language-tsx">function Bar(gdkmonitor) {
+  return &lt;window gdkmonitor={gdkmonitor} /&gt;
+}
+
+function main() {
+  for (const monitor of app.get_monitors()) {
+    if (monitor.model == "your-desired-model") {
+      Bar(monitor)
+    }
+  }
+}</code></pre>
+<h2 id="环境变量">环境变量</h2>
+<p>JavaScript <strong>不是</strong> bash 或其他 shell 环境。</p>
+<pre><code class="language-ts">const HOME = exec("echo $HOME") // 不会按你期望的方式工作</code></pre>
+<p><code>exec</code> 和 <code>execAsync</code> 按原样运行传递的程序，它<strong>不</strong>在 shell 环境中运行，因此上面的例子只是将 <code>$HOME</code> 作为字符串字面量传递给 <code>echo</code> 程序。</p>
+<p>:::danger 请不要这样做</p>
+<pre><code class="language-ts">const HOME = exec("bash -c 'echo $HOME'")</code></pre>
+<p>:::</p>
+<p>你可以使用 <a href="https://gjs-docs.gnome.org/glib20~2.0/glib.getenv">GLib.getenv</a> 来读取环境变量。</p>
+<pre><code class="language-ts">import GLib from "gi://GLib"
+
+const HOME = GLib.getenv("HOME")</code></pre>
+<h2 id="自定义-svg-符号图标">自定义 SVG 符号图标</h2>
+<p>将 SVG 文件放在遵循 freedesktop 规范的目录中，命名为 <code><icon-name>-symbolic.svg</code>，并使用 <code>app.add_icons()</code> 或 <code>app.start()</code> 中的 <code>icons</code> 参数。</p>
+<pre><code class="language-txt">.
+├── icons
+│   └── hicolor
+│       └── scalable
+│           └── actions
+│               └── custom-symbolic.svg
+└── app.ts</code></pre>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-25" id="cgt-25-0" checked>
+<label for="cgt-25-0">app.ts</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-ts">app.start({
+  icons: `${SRC}/icons`, // SRC 指向根目录
+  main() {
+    new Gtk.Image({
+      iconName: "custom-symbolic",
+    })
+  },
+})</code></pre></div>
+</div></div>
+<div class="info-box">
+<p class="box-title">INFO</p>
+<p>
+如果与你当前图标包中的图标名称冲突，图标包将优先。</p>
+</div>
+<h2 id="日志记录">日志记录</h2>
+<p>GJS 中的 <code>console</code> API 使用 glib 日志函数。如果你只想将文本按原样打印到 stdout，请使用全局可用的 <code>print</code> 函数，或使用 <code>printerr</code> 打印到 stderr。</p>
+<pre><code class="language-ts">print("将此行打印到 stdout")
+printerr("将此行打印到 stderr")</code></pre>
+<h2 id="为每个显示器自动创建窗口">为每个显示器自动创建窗口</h2>
+<p>你可以使用 <code><For></code> 组件为每个显示器自动创建/销毁顶级组件。</p>
+<pre><code class="language-tsx">import Gtk from "gi://Gtk"
+import Bar from "./Bar"
+import { For, This, createBinding } from "ags"
+
+function main() {
+  const monitors = createBinding(app, "monitors")
+
+  return (
+    &lt;For each={monitors}&gt;
+      {(monitor) =&gt; (
+        &lt;This this={app}&gt;
+          &lt;window
+            name="MyWindow"
+            gdkmonitor={monitor}
+            $={(self) =&gt; onCleanup(() =&gt; self.destroy())}
+          /&gt;
+          {otherWindows}
+        &lt;/This&gt;
+      )}
+    &lt;/For&gt;
+  )
+}
+
+app.start({ main })</code></pre>
+<h2 id="错误cant-convert-non-null-pointer-to-js-value">错误：Can't convert non-null pointer to JS value</h2>
+<p>这种情况发生在访问列表类型属性时。Gjs 在将 Vala 的 <code>List</code> 和其他类似数组的类型作为属性绑定时，无法正确处理。</p>
+<pre><code class="language-ts">import Notifd from "gi://AstalNotifd"
+const notifd = Notifd.get_default()
+
+notifd.notifications // [!code --]
+notifd.get_notifications() // [!code ++]</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+可以提交 issue/PR 来添加
+<a href="https://github.com/Aylur/ags/blob/main/lib/src/overrides.ts">覆盖</a>。</p>
+</div>
+<h2 id="如何创建常规浮动窗口">如何创建常规浮动窗口</h2>
+<p>使用 <code>Gtk.Window</code>。</p>
+<p>默认情况下，<code>Gtk.Window</code> 在关闭时会被销毁。要防止这种情况，请为 <code>delete-event</code> 添加一个处理器。</p>
+<pre><code class="language-tsx">return (
+  &lt;Gtk.Window
+    onDeleteEvent={(self) =&gt; {
+      self.hide()
+      return true
+    }}
+  &gt;
+    {child}
+  &lt;/Gtk.Window&gt;
+)</code></pre>
+<h2 id="有没有办法限制组件的宽度-高度">有没有办法限制组件的宽度/高度？</h2>
+<ul>
+<li>Gtk3：很遗憾，不行。你可以使用 <code>min-width</code> 和 <code>min-height</code> CSS 属性设置最小尺寸，但无法设置最大尺寸。</li>
+</ul>
+<ul>
+<li>Gtk4：可以，使用自定义布局管理器。作为快捷方式，你可以使用 <a href="https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.7/class.Clamp.html">Adw.Clamp</a></li>
+</ul>
+<h2 id="如何注册按键绑定">如何注册按键绑定？</h2>
+<p>只有<strong>获得焦点</strong>的窗口才能捕获事件。要使窗口可聚焦，请设置其 keymode。</p>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-62" id="cgt-62-0" checked>
+<label for="cgt-62-0">gtk3</label>
+<input type="radio" name="cg-62" id="cgt-62-1">
+<label for="cgt-62-1">gtk4</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-tsx">&lt;window
+  keymode={Astal.Keymode.ON_DEMAND}
+  onKeyPressEvent={(self, event: Gdk.Event) =&gt; {
+    if (event.get_keyval()[1] === Gdk.KEY_Escape) {
+      self.hide()
+    }
+  }}
+/&gt;</code></pre></div>
+<div class=""><pre><code class="language-tsx">&lt;window keymode={Astal.Keymode.ON_DEMAND}&gt;
+  &lt;Gtk.EventControllerKey
+    onKeyPressed={({ widget }, keyval: number) =&gt; {
+      if (keyval === Gdk.KEY_Escape) {
+        widget.hide()
+      }
+    }}
+  /&gt;
+&lt;/window&gt;</code></pre></div>
+</div></div>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+如果你想要全局按键绑定，你必须使用合成器的按键绑定设置。你可以定义一个<a href="app-cli.html#从-cli-发送消息">请求处理器</a>，并通过合成器的按键绑定来调用它。</p>
+</div>
+<h2 id="如何创建弹出窗口">如何创建弹出窗口</h2>
+<ul>
+<li>Gtk4：直接使用 Gtk 内置的 <a href="https://docs.gtk.org/gtk4/class.Popover.html">Popover</a>。</li>
+</ul>
+<ul>
+<li>Gtk3：你可以创建一个 <a href="https://aylur.github.io/libastal/astal3/class.Window.html">Astal.Window</a> 实例，定位它并处理点击事件。查看 <a href="https://github.com/Aylur/ags/tree/main/examples/gtk3/popover">examples/gtk3/popover</a></li>
+</ul>
+<h2 id="嵌套响应式值">嵌套响应式值</h2>
+<p>你可能想要以响应式方式访问深层嵌套的对象，可以使用</p>
+<p><a href="https://aylur.github.io/gnim/jsx#dynamic-rendering"><code><With></code></a> 组件或</p>
+<p><a href="https://aylur.github.io/gnim/jsx#createbinding"><code>createBinding</code></a> 来实现。</p>
+<pre><code class="language-ts">interface Nested extends GObject.Object {
+  value: string
+}
+
+interface MyObject extends GObject.Object {
+  nested: null | Nested
+}</code></pre>
+<p>使用 <code><With></code> 组件可以有条件地访问和绑定嵌套对象。</p>
+<pre><code class="language-tsx">function Component() {
+  const nested: Accessor&lt;Nested | null&gt; = createBinding(object, "nested")
+
+  return (
+    &lt;With value={nested}&gt;
+      {(nested) =&gt;
+        nested &amp;&amp; (
+          &lt;box&gt;
+            &lt;label label={createBinding(nested, "value")} /&gt;
+          &lt;/box&gt;
+        )
+      }
+    &lt;/With&gt;
+  )
+}</code></pre>
+<p>使用 <code>createBinding</code> 可以指定多个属性，它们将作为通向目标属性的"路径"。注意，如果路径中的任何属性是可空的，结果也将是可空的。</p>
+<pre><code class="language-tsx">function Component() {
+  const value: Accessor&lt;string | null&gt; = createBinding(
+    object,
+    "nested",
+    "value",
+  )
+
+  return &lt;label label={value((v) =&gt; v ?? "")} /&gt;
+}</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

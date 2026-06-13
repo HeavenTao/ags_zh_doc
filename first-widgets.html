@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>首个组件 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html" class="active">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="首个组件">首个组件</h1>
+<p>本页你将学习 JSX 语法。要深入了解，可以阅读 <a href="https://aylur.github.io/gnim/jsx.html">Gnim 文档</a>。</p>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+<code>gnim</code> 的符号会从 <code>ags</code> 模块重新导出。</p>
+</div>
+<h2 id="应用程序的入口点">应用程序的入口点</h2>
+<p>每个应用程序的入口点都是 <code>app.start</code> 调用。<code>app</code> 是</p>
+<p><a href="https://docs.gtk.org/gtk4/class.Application.html">Gtk.Application</a> 的单例实例。</p>
+<pre><code class="language-ts">import app from "ags/gtk4/app"
+
+app.start({
+  main() {
+    // 在这里实例化组件
+    // 并进行其他必要的设置
+  },
+})</code></pre>
+<h2 id="每个-shell-组件的根window">每个 Shell 组件的根：Window</h2>
+<p>桌面 Shell 由组件组成。组件是具有自己逻辑和样式的 UI 片段。组件可以小到一个按钮，也可以大到一个完整的状态栏。顶层（也称为根）组件始终是一个</p>
+<p><a href="https://aylur.github.io/libastal/astal4/class.Window.html">Window</a>。</p>
+<pre><code class="language-tsx">function Bar(monitor = 0) {
+  return (
+    &lt;window visible class="Bar" monitor={monitor}&gt;
+      &lt;box&gt;组件的内容&lt;/box&gt;
+    &lt;/window&gt;
+  )
+}
+
+app.start({
+  main() {
+    Bar(0)
+    Bar(1) // 为每个显示器实例化
+  },
+})</code></pre>
+<div class="important-box">
+<p class="box-title">IMPORTANT</p>
+<p>
+在 Gtk4 中，与其他组件不同，window 组件默认不可见。别忘了显式设置为 <code>visible</code>。</p>
+</div>
+<h2 id="创建和嵌套组件">创建和嵌套组件</h2>
+<p>组件是 JavaScript 函数，通过 JSX 表达式返回 <code>GObject.Object</code>（通常是 <code>Gtk.Widget</code>）实例。</p>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-20" id="cgt-20-0" checked>
+<label for="cgt-20-0">MyButton.tsx</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-tsx">function MyButton() {
+  return (
+    &lt;button onClicked={(self) =&gt; console.log(self, "被点击")}&gt;
+      &lt;label label="点我！" /&gt;
+    &lt;/button&gt;
+  )
+}</code></pre></div>
+</div></div>
+<p>现在你已经声明了 <code>MyButton</code>，可以将其嵌套到另一个组件中。</p>
+<pre><code class="language-tsx">function MyBar() {
+  return (
+    &lt;window visible&gt;
+      &lt;box&gt;
+        点击按钮
+        &lt;MyButton /&gt;
+      &lt;/box&gt;
+    &lt;/window&gt;
+  )
+}</code></pre>
+<p>请注意，你定义的组件以大写字母开头 <code><MyButton /></code>。小写标签是内置的<a href="intrinsics.html">内建元素</a>，而大写字母表示自定义组件。</p>
+<h2 id="显示数据">显示数据</h2>
+<p>JSX 允许你将标记放入 JavaScript 中。花括号让你可以"转义回"JavaScript，以便嵌入代码中的变量并显示它。</p>
+<pre><code class="language-tsx">function MyWidget() {
+  const label = "你好"
+
+  return &lt;button&gt;{label}&lt;/button&gt;
+}</code></pre>
+<p>你也可以将 JavaScript 传递给标记属性：</p>
+<pre><code class="language-tsx">function MyWidget() {
+  const label = "你好"
+
+  return &lt;button label={label} /&gt;
+}</code></pre>
+<h2 id="条件渲染">条件渲染</h2>
+<p>你可以使用编写常规 JavaScript 代码时使用的相同技术。例如，你可以使用 if 语句来有条件地包含 JSX：</p>
+<pre><code class="language-tsx">function MyWidget() {
+  let content
+
+  if (condition) {
+    content = &lt;True /&gt;
+  } else {
+    content = &lt;False /&gt;
+  }
+
+  return &lt;box&gt;{content}&lt;/box&gt;
+}</code></pre>
+<p>你还可以内联使用<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Conditional_operator">条件 <code>?</code></a>（三元）表达式。</p>
+<pre><code class="language-tsx">function MyWidget() {
+  return &lt;box&gt;{condition ? &lt;True /&gt; : &lt;False /&gt;}&lt;/box&gt;
+}</code></pre>
+<p>当你不需要 <code>else</code> 分支时，也可以使用更短的<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_AND#%E7%9F%AD%E8%B7%AF%E8%AE%A1%E7%AE%97">逻辑 && 语法</a>：</p>
+<pre><code class="language-tsx">function MyWidget() {
+  return &lt;box&gt;{condition &amp;&amp; &lt;True /&gt;}&lt;/box&gt;
+}</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+<a href="https://developer.mozilla.org/zh-CN/docs/Glossary/Falsy">假值</a>不会被渲染。</p>
+</div>
+<h2 id="渲染列表">渲染列表</h2>
+<p>你可以使用</p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for"><code>for</code> 循环</a></p>
+<p>或<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组 <code>map()</code> 函数</a>。</p>
+<pre><code class="language-tsx">function MyWidget() {
+  const labels = ["标签1", "标签2", "标签3"]
+
+  return (
+    &lt;box&gt;
+      {labels.map((label) =&gt; (
+        &lt;label label={label} /&gt;
+      ))}
+    &lt;/box&gt;
+  )
+}</code></pre>
+<h2 id="组件信号处理器">组件信号处理器</h2>
+<p>你可以通过在组件内部声明事件处理函数来响应事件：</p>
+<pre><code class="language-tsx">import Gtk from "gi://Gtk"
+
+function MyButton() {
+  function onClicked(self: Gtk.Button) {
+    console.log(self, "被点击了")
+  }
+
+  return &lt;button onClicked={onClicked} /&gt;
+}</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+使用 Gtk4，你可以使用
+<a href="https://docs.gtk.org/gtk4/class.EventController.html">EventControllers</a> 进行更复杂的事件处理。
+
+``<code>tsx
+<box>
+  <Gtk.GestureClick
+    propagationPhase={Gtk.PropagationPhase.CAPTURE}
+    button={Gdk.BUTTON_PRIMARY}
+    onPressed={() => print("主键点击")}
+  /&gt;
+</box>
+</code>``</p>
+</div>
+<h2 id="属性如何传递">属性如何传递</h2>
+<p>使用 JSX 时，自定义组件始终将单个对象作为其参数。</p>
+<pre><code class="language-ts">type Props = {
+  myprop: string
+  children?: JSX.Element | Array&lt;JSX.Element&gt;
+}
+
+function MyWidget({ myprop, children }: Props) {
+  //
+}</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+<code>JSX.Element</code> 是 <code>GObject.Object</code> 的别名。</p>
+</div>
+<p><code>children</code> 属性是特殊的，用于传递 JSX 表达式中给出的子元素。</p>
+<pre><code class="language-tsx">// MyWidget 的 `children` 属性是 box
+return (
+  &lt;MyWidget myprop="你好"&gt;
+    &lt;box /&gt;
+  &lt;/MyWidget&gt;
+)</code></pre>
+<pre><code class="language-tsx">// MyWidget 的 `children` 属性是 [box, box]
+return (
+  &lt;MyWidget myprop="你好"&gt;
+    &lt;box /&gt;
+    &lt;box /&gt;
+  &lt;/MyWidget&gt;
+)</code></pre>
+<h2 id="状态管理">状态管理</h2>
+<p>状态通过称为 <a href="https://aylur.github.io/gnim/jsx#state-management"><code>Accessor</code></a> 的信号来管理。</p>
+<ul>
+<li>使用 <code>createState</code> 可以实例化一个可写的响应式值</li>
+<li>使用 <code>createBinding</code> 可以挂钩到 GObject 属性</li>
+<li>使用 <code>createComputed</code> 可以派生响应式值</li>
+</ul>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-75" id="cgt-75-0" checked>
+<label for="cgt-75-0">State 示例</label>
+<input type="radio" name="cg-75" id="cgt-75-1">
+<label for="cgt-75-1">GObject 示例</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-tsx">import { createState, createComputed } from "ags"
+
+function Counter() {
+  const [count, setCount] = createState(0)
+
+  function increment() {
+    setCount((v) =&gt; v + 1)
+  }
+
+  const label = createComputed(() =&gt; count().toString())
+
+  return (
+    &lt;box&gt;
+      &lt;label label={label} /&gt;
+      &lt;button onClicked={increment}&gt;点击增加计数&lt;/button&gt;
+    &lt;/box&gt;
+  )
+}</code></pre></div>
+<div class=""><pre><code class="language-tsx">import GObject, { register, property } from "ags/gobject"
+import { createBinding, createComputed } from "ags"
+
+@register()
+class CounterStore extends GObject.Object {
+  @property(Number) count = 0
+}
+
+function Counter() {
+  const counter = new CounterStore()
+
+  function increment() {
+    counter.count += 1
+  }
+
+  const count = createBinding(count, "count")
+  const label = createComputed(() =&gt; count().toString())
+
+  return (
+    &lt;box&gt;
+      &lt;label label={label} /&gt;
+      &lt;button onClicked={increment}&gt;点击增加计数&lt;/button&gt;
+    &lt;/box&gt;
+  )
+}</code></pre></div>
+</div></div>
+<p>注意在 <code>createComputed</code> 体中，<code>count</code> 被作为函数调用，以便自动追踪它作为派生 <code>label</code> 属性的依赖。</p>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+<code>createComputed</code> 有一个简写形式。
+
+``<code>ts
+// 这两行意思相同，效果也相同
+const label = createComputed(() =&gt; count().toString())
+const label = count((c) =&gt; c.toString())
+</code>``</p>
+</div>
+<h2 id="集成外部程序">集成外部程序</h2>
+<p>除了上述管理状态的函数外，AGS 还提供了集成你可能已熟悉的 CLI 工具的方法：</p>
+<p><a href="utilities.html#createpoll"><code>createPoll</code></a> 按给定间隔轮询程序，</p>
+<p><a href="utilities.html#createsubprocess"><code>createSubprocess</code></a> 启动给定程序并监控其标准输出。</p>
+<p>例如，假设你想使用 <code>date</code> CLI 命令获取格式化的日期。</p>
+<pre><code class="language-tsx">const date = createPoll("", 1000, `bash -c "date +%H:%M"`)
+
+return &lt;label label={date} /&gt;</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+运行子进程相对昂贵，因此当有可用的<a href="resources.html#astal-库">库</a>时，始终优先使用它们。</p>
+</div>
+<p>实际使用中，你会使用</p>
+<p><a href="https://docs.gtk.org/glib/struct.DateTime.html"><code>GLib.DateTime</code></a> 或 JavaScript 的</p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date"><code>Date</code></a>。</p>
+<p>在较新版本的 GJS (>= 1.85.2) 中，你还可以使用新的</p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Temporal"><code>Temporal</code></a> JavaScript 内置对象。</p>
+<pre><code class="language-tsx">const date = createPoll("", 1000, () =&gt; new Date().toString())
+
+return &lt;label label={date} /&gt;</code></pre>
+<div class="warning-box">
+<p class="box-title">尽可能避免轮询。</p>
+<p>
+请记住，轮询通常被认为是坏实践。你应该尽可能使用事件和信号，只在必要时执行操作。</p>
+</div>
+<h2 id="动态渲染">动态渲染</h2>
+<p>当你想要基于某个值进行渲染时，可以使用 <code><With></code> 组件。</p>
+<pre><code class="language-tsx">import { With, Accessor } from "ags"
+
+let value: Accessor&lt;{ member: string } | null&gt;
+
+return (
+  &lt;box&gt;
+    &lt;With value={value}&gt;
+      {(value) =&gt; value &amp;&amp; &lt;label label={value.member} /&gt;}
+    &lt;/With&gt;
+  &lt;/box&gt;
+)</code></pre>
+<div class="tip-box">
+<p class="box-title">TIP</p>
+<p>
+在大多数情况下，最好始终渲染组件并设置其 <code>visible</code> 属性。在需要解包可空对象或需要访问嵌套值时使用 <code><With></code>。</p>
+</div>
+<p><!-- --></p>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+当值发生变化且组件被重新渲染时，前一个组件会从父组件中移除，新组件会被<strong>追加</strong>。组件的顺序<strong>不会</strong>保持，因此请确保将 <code><With></code> 包装在容器中以避免此问题。这是因为 Gtk 没有通用的 API 来对容器中的组件进行排序。</p>
+</div>
+<h2 id="动态列表渲染">动态列表渲染</h2>
+<p><code><For></code> 组件允许你基于数组动态渲染。每次数组更改时，会与之前的状态进行比较。新项目的组件被插入，与已移除项目关联的组件被删除。</p>
+<pre><code class="language-tsx">import { For, Accessor } from "ags"
+
+let list: Accessor&lt;Array&lt;any&gt;&gt;
+
+return (
+  &lt;box&gt;
+    &lt;For each={list}&gt;
+      {(item, index: Accessor&lt;number&gt;) =&gt; (
+        &lt;label label={index((i) =&gt; `${i}. ${item}`)} /&gt;
+      )}
+    &lt;/For&gt;
+  &lt;/box&gt;
+)</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+与 <code><With></code> 类似，当列表更改且新项目被添加时，它只是被<strong>追加</strong>到父组件中。组件的顺序不会保持，因此请确保将 <code><For></code> 包装在容器中以避免此问题。</p>
+</div>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

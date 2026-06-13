@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>迁移指南 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html" class="active">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="迁移指南">迁移指南</h1>
+<h2 id="从-v2-迁移">从 v2 迁移</h2>
+<h3 id="导入路径">导入路径</h3>
+<p><code>astal</code> 命名空间已被移除。AGS 现在使用</p>
+<p><a href="https://github.com/aylur/gnim">Gnim</a>，它从 <code>ags</code> 命名空间重新导出。</p>
+<pre><code class="language-ts">// [!code --:2]
+import { App, Gtk } from "astal/gtk3"
+import { bind, Variable } from "astal/state"
+// [!code ++:3]
+import app from "ags/gtk3/app"
+import Gtk from "gi://Gtk?version=3.0"
+import { createBinding, createState } from "ags"</code></pre>
+<h3 id="子类化">子类化</h3>
+<p><code>astalify</code> 已被移除，<code>jsx</code> 函数和 JSX 表达式处理一切。可以直接使用 Gtk 组件，无需任何预先设置。</p>
+<pre><code class="language-tsx">// [!code --:2]
+const Calendar = astalify(Gtk.Calendar)
+const _ = &lt;Calendar /&gt;
+// [!code ++:1]
+const _ = &lt;Gtk.Calendar /&gt;</code></pre>
+<p>如果你仍更喜欢使用常规 JS 函数而不是 JSX，可以这样做：</p>
+<pre><code class="language-ts">import { CCProps } from "ags"
+import { Gtk } from "ags/gtk4"
+type BoxProps = Partial&lt;CCProps&lt;Gtk.Box, Gtk.Box.ConstructorProps&gt;&gt;
+const Box = (props: BoxProps) =&gt; jsx(Gtk.Box, props)
+
+Box({
+  orientation: state,
+  children: [Box()],
+})</code></pre>
+<h3 id="gobject-装饰器">GObject 装饰器</h3>
+<p>它们已更新到阶段 3 提案。你可以在</p>
+<p><a href="https://aylur.github.io/gnim/gobject.html">Gnim</a> 文档中了解更多。</p>
+<pre><code class="language-ts">@register()
+class MyObj extends GObject.Object {
+  @property(String) declare myProp: string // [!code --]
+  @property(String) myProp = "" // [!code ++]
+
+  @property(String) // [!code --]
+  @getter(String) // [!code ++]
+  get myProp() {
+    return ""
+  }
+
+  @property(String) // [!code --]
+  @setter(String) // [!code ++]
+  set myProp(v: string) {
+    //
+  }
+}</code></pre>
+<p>确保同时更新 <code>tsconfig.json</code>：</p>
+<pre><code class="language-jsonc">{
+  "compilerOptions": {
+    "experimentalDecorators": false, // [!code ++]
+    "target": "ES2020", // [!code ++]
+  },
+}</code></pre>
+<h3 id="语法变更">语法变更</h3>
+<ul>
+<li><code>setup</code> → <code>$</code></li>
+<li><code>className</code> → <code>class</code></li>
+</ul>
+<pre><code class="language-tsx">&lt;button class="my-button" $={(self) =&gt; print("ref", self)} /&gt;</code></pre>
+<h3 id="variable">Variable</h3>
+<p><code>Variable</code> 已被移除，取而代之的是 <code>Accessor</code> 和 <code>createState</code>。你可以在</p>
+<p><a href="https://aylur.github.io/gnim/jsx.html#state-management">Gnim</a> 文档中了解更多。</p>
+<pre><code class="language-tsx">// [!code --:3]
+const v = Variable("")
+return &lt;label label={v()} /&gt;
+v.set("新值")
+// [!code ++:3]
+const [v, setV] = createState("")
+return &lt;label label={v} /&gt;
+setV("新值")</code></pre>
+<p>Variable 方法有对应的 Accessor 创建函数：</p>
+<ul>
+<li><code>.poll</code>：<a href="utilities.html#createpoll"><code>createPoll</code></a></li>
+<li><code>.watch</code>：<a href="utilities.html#createsubprocess"><code>createSubprocess</code></a></li>
+<li><code>.observe</code>：<a href="https://aylur.github.io/gnim/jsx#createconnection"><code>createConnection</code></a></li>
+<li><code>.derive</code>：<a href="https://aylur.github.io/gnim/jsx#createcomputed"><code>createComputed</code></a></li>
+<li><code>.drop</code>：Accessor 不能被显式清理。使用预定的创建函数，它们会被自动清理。</li>
+</ul>
+<h3 id="binding">Binding</h3>
+<p><code>Binding</code> 和 <code>bind</code> 已被移除，但 API 是相同的，唯一区别是你需要使用 Accessor 创建函数。</p>
+<pre><code class="language-tsx">// [!code --:2]
+import { bind } from "astal"
+const v = bind(object, "prop")
+// [!code ++:2]
+import { createBinding } from "ags"
+const v = createBinding(object, "prop")
+return &lt;label label={v((v) =&gt; `转换后的 ${v}`)} /&gt;</code></pre>
+<h3 id="动态渲染">动态渲染</h3>
+<p>动态子元素渲染使用 <code><With></code> 和 <code><For></code> 组件完成。<code>children</code> 属性不能再接受 <code>Binding</code>。</p>
+<p><!-- prettier-ignore --></p>
+<pre><code class="language-tsx">const value: Binding&lt;object&gt;
+const list: Binding&lt;Array&lt;object&gt;&gt;
+
+return (
+  &lt;box&gt;
+    {/* [!code --:3] */}
+    {value.as((value) =&gt; (
+      &lt;&gt;&lt;/&gt;
+    ))}
+    {/* [!code ++:3] */}
+    &lt;With value={value}&gt;
+      {(value) =&gt; &lt;&gt;&lt;/&gt;}
+    &lt;/With&gt;
+    {/* [!code --:3] */}
+    {list.as(list =&gt; list.map(item =&gt; (
+      &lt;&gt;&lt;/&gt;
+    )))}
+    {/* [!code ++:3] */}
+    &lt;For each={list}&gt;
+      {(item) =&gt; &lt;&gt;&lt;/&gt;}
+    &lt;/For&gt;
+  &lt;/box&gt;
+)</code></pre>
+<h2 id="从-v1-迁移">从 v1 迁移</h2>
+<p>AGS 从头重写了，不幸的是几乎所有东西都发生了根本性变化，你需要从头开始重写你的项目。</p>
+<p>变化太多，无法一一列举，以下是些一些重点。</p>
+<h3 id="入口点">入口点</h3>
+<p>不再使用固定的 <code>~/.config/ags/config.js</code> 入口，你可以任意命名主文件，并将其作为参数传递给 <code>ags run </path/to/entry></code>。</p>
+<p>如果你希望继续将源代码放在 <code>~/.config/ags</code> 中，则将入口文件命名为 <code>app.js</code>、<code>app.ts</code>、<code>app.jsx</code> 或 <code>app.tsx</code>，<code>ags run</code> 将默认使用它。</p>
+<p>代码中的入口点从 <code>App.config</code> 变为 <code>app.start</code>：</p>
+<pre><code class="language-js">// [!code --:5]
+App.config({
+  windows: [
+    // 窗口实例
+  ],
+})
+// [!code ++:7]
+import app from "astal/gtk4/app"
+
+app.start({
+  main() {
+    // 任何初始化代码
+  },
+})</code></pre>
+<h3 id="实例化组件">实例化组件</h3>
+<p>不再建议创建顶级实例，因为脚本可以在</p>
+<p><a href="https://aylur.github.io/astal/guide/typescript/cli-app#client">客户端模式</a> 下运行，建议只在 <code>main</code> 或 <code>client</code> 代码块中执行代码。</p>
+<pre><code class="language-js">// [!code --:5]
+const win = Widget.Window()
+
+App.config({
+  windows: [win],
+})
+// [!code ++:5]
+app.main({
+  main() {
+    new Widget.Window()
+  },
+})</code></pre>
+<h3 id="模板">模板</h3>
+<p>AGS 现在支持并推荐使用 <a href="./first-widgets#创建和嵌套组件">JSX</a>。</p>
+<pre><code class="language-jsx">// [!code --:4]
+const _ = Widget.Box({
+  vertical: true,
+  children: [Widget.Label("你好")],
+})
+// [!code ++:5]
+const _ = (
+  &lt;box vertical&gt;
+    &lt;label label="你好" /&gt;
+  &lt;/box&gt;
+)</code></pre>
+<h3 id="响应式">响应式</h3>
+<p><code>Variable</code> 已被移除，取而代之的是信号。</p>
+<pre><code class="language-jsx">const label = Variable("你好") // [!code --:5]
+
+Label({
+  label: label.bind().as((hello) =&gt; `${hello} 世界`),
+})
+import { createState } from "ags" // [!code ++:6]
+const [label, setLabel] = createState("你好")
+return &lt;label label={label((hello) =&gt; `${hello} 世界`)} /&gt;</code></pre>
+<h3 id="hooks">Hooks</h3>
+<p>组件不再被子类化，添加的方法已被移除。</p>
+<pre><code class="language-jsx">// [!code --:6]
+Widget.Button({
+  setup: (self) =&gt; {
+    self.on("signal-name", handler)
+    self.hook(obj, handler, "changed")
+  },
+})
+import { onCleanup } from "ags" // [!code ++:14]
+
+function MyWidget() {
+  const id = obj.connect("signal-name", callback)
+
+  onCleanup(() =&gt; {
+    obj.disconnect(id)
+  })
+
+  return &lt;button onClicked={handler} /&gt;
+}</code></pre>
+<div class="note-box">
+<p class="box-title">NOTE</p>
+<p>
+<code>.keybind</code> 和 <code>.poll</code> hooks 已被移除。轮询应使用 <code>createPoll</code>。按键绑定应使用预期的 Gtk API。</p>
+</div>
+<h3 id="组件">组件</h3>
+<p><code>JSX</code> 处理一切，不再需要子类化组件。</p>
+<pre><code class="language-jsx">import Gtk from "gi://Gtk"
+const calendar = &lt;Gtk.Calendar /&gt;</code></pre>
+<h3 id="全局对象">全局对象</h3>
+<p><code>App</code>、<code>Service</code>、<code>Utils</code>、<code>Widget</code>、<code>Variable</code> 不再是全局可用的。</p>
+<pre><code class="language-js">import app from "ags/gtk4/app"
+import * as fileUtils from "ags/file"
+import * as procUtils from "ags/process"
+import * as timeUtils from "ags/time"
+import { createBinding, createState } from "ags"</code></pre>
+<h3 id="services">Services</h3>
+<p>这些不再称为 <code>Service</code>。<code>Service</code> 和 <code>GObject.Object</code> 之间不再有区别，也不再内置 Service。</p>
+<p>它们现在只是外部<a href="https://aylur.github.io/astal/guide/libraries/references#astal-库">库</a>，需要安装在 AGS 旁边。它们现在用 Vala 或 C 实现，这使得它们也可以在 AGS 之外使用。</p>
+<p>但它们的工作方式非常相似。</p>
+<pre><code class="language-js">// 导入
+const battery = await Service.import("battery") // [!code --]
+import Battery from "gi://AstalBattery" // [!code ++:2]
+const battery = Battery.get_default()
+
+// 绑定
+const b = battery.bind("percentage") // [!code --]
+import { createBinding } from "ags" // [!code ++:2]
+const b = createBinding(battery, "percentage")</code></pre>
+<p>创建自定义的"Service"现在意味着创建一个 <code>GObject.Object</code> 子类。</p>
+<pre><code class="language-ts">// [!code --:16]
+class MyService extends Service {
+  static {
+    Service.register(
+      this,
+      {
+        "my-signal": ["float"],
+      },
+      {
+        "my-value": ["float", "rw"],
+      },
+    )
+  }
+
+  get my_value(): number
+  set my_value(v: number)
+}
+import GObject, { register, signal, property } from "ags/gobject" // [!code ++:9]
+
+@register()
+class MyService extends GObject.Object {
+  @property(Number) myValue = 0
+
+  @signal(Number)
+  mySignal(n: number): void {}
+}</code></pre>
+<h3 id="utils">Utils</h3>
+<ul>
+<li>File、Process 和 Time 工具函数可从各自的<a href="utilities.html">模块</a>获取：</li>
+</ul>
+<pre><code class="language-js">Utils.exec("command") // [!code --:4]
+Utils.readFile("file")
+Utils.timeout(1000, callback)
+Utils.fetch("url")
+import { exec } from "ags/process" // [!code ++:4]
+import { readFile } from "ags/file"
+import { timeout } from "ags/time"
+import { fetch } from "ags/fetch"</code></pre>
+<ul>
+<li>图标查找没有替代方案。请使用 <code>Gtk.IconTheme</code>。</li>
+</ul>
+<ul>
+<li>身份验证已移至 <a href="https://aylur.github.io/astal/guide/libraries/auth">AstalAuth</a></li>
+</ul>
+<ul>
+<li>发送通知将在 <a href="https://aylur.github.io/astal/guide/libraries/notifd">AstalNotifd</a> 中可用。在此之前请参见 <a href="https://github.com/Aylur/astal/issues/26">#26</a>。</li>
+</ul>
+<h3 id="cli">CLI</h3>
+<p>要使窗口可通过 CLI 切换，你现在需要</p>
+<p><a href="app-cli.html#通过名称切换窗口可见性">将 <code>app</code> 实例传递给 <code>Window</code></a>，而不是将窗口数组传递给 <code>App.config</code>。</p>
+<pre><code class="language-js">// [!code --:3]
+App.config({
+  windows: [Widget.Window({ name: "window-name" })],
+})
+// [!code ++:5]
+app.start({
+  main() {
+    return &lt;window name="window-name" application={app}&gt;&lt;/window&gt;
+  },
+})</code></pre>
+<p><code>ags --run-js</code> 已被移除，取而代之的是<a href="app-cli.html#从-cli-发送消息">请求</a>。</p>
+<pre><code class="language-ts">// [!code --:3]
+globalThis.myfunction = () =&gt; {
+  print("你好")
+}
+// [!code ++:8]
+app.start({
+  requestHandler(request: string, res: (response: any) =&gt; void) {
+    if (request == "myfunction") {
+      res("你好")
+    }
+    res("未知命令")
+  },
+})</code></pre>
+<pre><code class="language-sh">ags -r "myfunction()" # [!code --]
+ags request myfunction # [!code ++]</code></pre>
+<p>实例名称现在在代码中定义，而不是在首次启动的 CLI 中定义：</p>
+<pre><code class="language-js">app.start({
+  instanceName: "name",
+})</code></pre>
+<pre><code class="language-sh">ags -i name # [!code --:2]
+ags -t window-name -i name
+ags run # [!code ++:2]
+ags toggle window-name -i name</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

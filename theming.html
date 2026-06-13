@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>主题 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html" class="active">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="主题">主题</h1>
+<p>由于组件工具包是 <strong>GTK</strong>，主题定制通过 <strong>CSS</strong> 来完成。</p>
+<ul>
+<li><a href="https://www.w3schools.com/css/">CSS 教程</a></li>
+<li>Gtk4</li>
+<li><a href="https://docs.gtk.org/gtk4/css-overview.html">GTK4 CSS 概览 Wiki</a></li>
+<li><a href="https://docs.gtk.org/gtk4/css-properties.html">GTK4 CSS 属性概览 Wiki</a></li>
+<li>Gtk3</li>
+<li><a href="https://docs.gtk.org/gtk3/css-overview.html">GTK3 CSS 概览 Wiki</a></li>
+<li><a href="https://docs.gtk.org/gtk3/css-properties.html">GTK3 CSS 属性概览 Wiki</a></li>
+</ul>
+<div class="warning-box">
+<p class="box-title">GTK 不是 Web</p>
+<p>
+虽然大多数功能在 GTK 中已实现，但你不能假设任何在 Web 上有效的东西在 GTK 中也有效。请参考 GTK 文档查看支持的功能。</p>
+</div>
+<h2 id="加载静态样式表">加载静态样式表</h2>
+<p>你可以导入任何 <code>css</code> 或 <code>scss</code> 文件，它会被内联为字符串，你可以将其传递给 css 属性。</p>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-17" id="cgt-17-0" checked>
+<label for="cgt-17-0">app.ts</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-ts">import css from "./style.css"
+import scss from "./style.scss"
+
+const inlineCss = `
+  window {
+    background-color: transparent;
+  }
+`
+
+app.start({
+  css: css,
+  css: scss,
+  css: inlineCss,
+})</code></pre></div>
+</div></div>
+<h2 id="组件上的-css-属性">组件上的 CSS 属性</h2>
+<p>你应该始终优先使用类名和样式表来进行样式设置。但在那些需要根据 JavaScript 值应用样式的罕见情况下，你可以使用 <code>css</code> 属性。</p>
+<pre><code class="language-tsx">&lt;box css="padding 1em; border: 1px solid red;" /&gt;</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+组件的 <code>css</code> 属性不会级联到其子组件。通常应避免使用 <code>css</code>，改用 <code>class</code> 和样式表。</p>
+</div>
+<h2 id="在运行时应用样式表">在运行时应用样式表</h2>
+<p>你可以在运行时应用额外的样式。</p>
+<pre><code class="language-ts">app.apply_css("/path/to/file.css")</code></pre>
+<pre><code class="language-ts">app.apply_css(`
+  window {
+    background-color: transparent;
+  }
+`)</code></pre>
+<pre><code class="language-ts">app.reset_css() // 如有需要可重置</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+<code>apply_css()</code> 会叠加在之前应用的样式表之上。你可以使用 <code>reset_css()</code> 重置样式表。</p>
+</div>
+<h2 id="检查器">检查器</h2>
+<p>如果你不确定组件层次结构或任何 CSS 选择器，可以使用 <a href="https://wiki.gnome.org/Projects/GTK/Inspector">GTK 检查器</a>：</p>
+<pre><code class="language-sh">ags inspect</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AGS 中文教程 — Wayland 桌面 Shell 框架</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <img class="logo-large" src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+  <h1>AGS<span class="sub">一个用于构建 Wayland 桌面 Shell 的框架</span></h1>
+  <p class="tagline">使用 JavaScript / TypeScript 和 JSX 编写你的桌面 Shell</p>
+  <div class="actions">
+    <a href="install.html" class="btn btn-brand">🚀 快速开始</a>
+    <a href="resources.html" class="btn btn-alt">📦 相关资源</a>
+  </div>
+</section>
+
+<!-- Feature Cards -->
+<section class="features-grid">
+  <div class="feature-card">
+    <h3>🚀 初始化项目</h3>
+    <p>使用 <code>ags init</code> 一键生成项目模板，快速上手</p>
+  </div>
+  <div class="feature-card">
+    <h3>📝 TypeScript 类型</h3>
+    <p>使用 <code>ags types</code> 从 GObject 库自动生成类型定义</p>
+  </div>
+  <div class="feature-card">
+    <h3>📦 打包项目</h3>
+    <p>使用 <code>ags bundle</code> 将项目打包成单文件可执行脚本</p>
+  </div>
+  <div class="feature-card">
+    <h3>▶️ 运行项目</h3>
+    <p>使用 <code>ags run</code> 无需预先打包即可直接运行</p>
+  </div>
+</section>
+
+<!-- Code Showcases -->
+<section class="section">
+  <h2>核心特性</h2>
+
+  <div class="feature-row">
+    <div class="feature-text">
+      <h3>使用熟悉的主流语言</h3>
+      <p>AGS 使用 JavaScript / TypeScript。JSX 语法借鉴 React / Solid 等 Web 框架，让你在 JS 中编写类似 XML 的 UI。</p>
+    </div>
+    <div>
+<pre><code class="language-tsx">function Bar() {
+  const [counter, setCounter] = createState(0)
+  const date = createPoll("", 1000, `date "+%H:%M - %A %e."`)
+
+  return (
+    &lt;window visible anchor={TOP | LEFT | RIGHT}&gt;
+      &lt;centerbox&gt;
+        &lt;label $type="start" label={date} /&gt;
+        &lt;button $type="end" onClicked={() => setCounter((c) => c + 1)}&gt;
+          &lt;label label={counter((c) => `已点击 ${c} 次`)} /&gt;
+        &lt;/button&gt;
+      &lt;/centerbox&gt;
+    &lt;/window&gt;
+  )
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="feature-row">
+    <div>
+<pre><code class="language-tsx">function BatteryLabel() {
+  const pct = createBinding(Battery.get_default(), "percentage")
+  return &lt;label label={pct((p) => `${Math.round(p * 100)}%`)} /&gt;
+}
+
+function MediaPlayers() {
+  const players = createBinding(Mpris.get_default(), "players")
+  return (
+    &lt;For each={players}&gt;
+      {(player) => (
+        &lt;button
+          label={createBinding(player, "title")}
+          onClicked={() => player.play_pause()}
+        /&gt;
+      )}
+    &lt;/For&gt;
+  )
+}</code></pre>
+    </div>
+    <div class="feature-text">
+      <h3>电池功能已内置</h3>
+      <p>通过 <a href="https://aylur.github.io/astal/" target="_blank">Astal</a> 库直接查询电池、媒体播放、网络等系统信息。后端代码已就绪，你只需专注于构建 UI。</p>
+    </div>
+  </div>
+
+  <div class="feature-row">
+    <div class="feature-text">
+      <h3>使用 CSS 定制样式</h3>
+      <p>GTK 支持 CSS 样式，AGS 还提供 SASS 支持。涵盖 CSS 变量、关键帧动画、变换等常用特性。</p>
+      <p><a href="https://docs.gtk.org/gtk4/css-properties.html" target="_blank">查看支持的 CSS 特性 →</a></p>
+    </div>
+    <div>
+<pre><code class="language-css">button {
+  animation: wiggle 2s linear infinite;
+}
+
+@keyframes wiggle {
+  0%   { transform: rotateZ(0); }
+  15%  { transform: rotateZ(-15deg); }
+  20%  { transform: rotateZ(10deg); }
+  25%  { transform: rotateZ(-10deg); }
+  30%  { transform: rotateZ(6deg); }
+  35%  { transform: rotateZ(-4deg); }
+  40%  { transform: rotateZ(0); }
+  100% { transform: rotateZ(0); }
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- Showcases -->
+<section class="section">
+  <h2>作品展示</h2>
+  <div class="showcases">
+    <div class="showcase-card">
+      <img src="https://i.imgur.com/rnEX49B.png" alt="Delta Shell">
+      <div class="caption"><a href="https://github.com/Sinomor/delta-shell" target="_blank" rel="noreferrer">Delta Shell</a> by Sinomor</div>
+    </div>
+    <div class="showcase-card">
+      <img src="https://raw.githubusercontent.com/Aylur/astal/f5c1d29a37d6404999aee9210cdbf09ed6a278be/docs/public/showcase/ezerinz.webp" alt="Epik Shell">
+      <div class="caption"><a href="https://github.com/ezerinz/epik-shell" target="_blank" rel="noreferrer">Epik Shell</a> by ezerinz</div>
+    </div>
+    <div class="showcase-card">
+      <img src="https://raw.githubusercontent.com/retrozinndev/colorshell/238fde6e287c79dbcbe5df9f478aa4b71c602e37/repo/shots/center-window-control-center.png" alt="colorshell">
+      <div class="caption"><a href="https://github.com/retrozinndev/colorshell" target="_blank" rel="noreferrer">colorshell</a> by retrozinndev</div>
+    </div>
+    <div class="showcase-card">
+      <img src="https://raw.githubusercontent.com/JohnOberhauser/OkPanelScreenshots/refs/heads/main/menu.png" alt="OkPanel">
+      <div class="caption"><a href="https://github.com/JohnOberhauser/OkPanel" target="_blank" rel="noreferrer">OkPanel</a> by John Oberhauser</div>
+    </div>
+    <div class="showcase-card">
+      <img src="https://marble-shell.pages.dev/full.png" alt="Marble Shell">
+      <div class="caption"><a href="https://github.com/Aylur/marble-shell" target="_blank" rel="noreferrer">Marble Shell</a> by Aylur</div>
+    </div>
+  </div>
+</section>
+
+<!-- Tutorial Index -->
+<section class="tutorial-index">
+  <h2>📚 教程目录</h2>
+  <table>
+    <thead><tr><th>#</th><th>页面</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><a href="install.html">安装</a></td><td>Arch / Nix / 源码编译</td></tr>
+      <tr><td>2</td><td><a href="quick-start.html">快速开始</a></td><td>单文件启动、模板使用</td></tr>
+      <tr><td>3</td><td><a href="first-widgets.html">首个组件</a></td><td>JSX 语法、状态管理、动态渲染</td></tr>
+      <tr><td>4</td><td><a href="theming.html">主题</a></td><td>CSS 样式表、运行时主题</td></tr>
+      <tr><td>5</td><td><a href="app-cli.html">应用与 CLI</a></td><td>入口点、实例、请求处理</td></tr>
+      <tr><td>6</td><td><a href="utilities.html">工具函数</a></td><td>文件 / 进程 / 时间 / HTTP</td></tr>
+      <tr><td>7</td><td><a href="resources.html">资源</a></td><td>Astal 库、GJS 参考</td></tr>
+      <tr><td>8</td><td><a href="intrinsics.html">内建元素</a></td><td>Gtk3/Gtk4 内置组件参考</td></tr>
+      <tr><td>9</td><td><a href="faq.html">常见问题</a></td><td>环境变量、图标、按键绑定等</td></tr>
+      <tr><td>10</td><td><a href="examples.html">示例</a></td><td>官方示例截图与链接</td></tr>
+      <tr><td>11</td><td><a href="nix.html">Nix</a></td><td>NixOS / home-manager 集成</td></tr>
+      <tr><td>12</td><td><a href="migration-guide.html">迁移指南</a></td><td>从 v1 / v2 迁移</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- References -->
+<section class="section" style="text-align:center; padding-bottom: 80px;">
+  <h2>🔗 参考链接</h2>
+  <p>
+    <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">AGS 官方</a> ·
+    <a href="https://github.com/aylur/ags" target="_blank" rel="noreferrer">GitHub</a> ·
+    <a href="https://aylur.github.io/astal/" target="_blank" rel="noreferrer">Astal</a> ·
+    <a href="https://aylur.github.io/gnim/" target="_blank" rel="noreferrer">Gnim</a> ·
+    <a href="https://gjs.guide/" target="_blank" rel="noreferrer">GJS 指南</a> ·
+    <a href="https://gjs-docs.gnome.org/" target="_blank" rel="noreferrer">GJS 参考</a> ·
+    <a href="https://docs.gtk.org/gtk4/css-properties.html" target="_blank" rel="noreferrer">GTK4 CSS</a>
+  </p>
+</section>
+
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | Logo 由 VDawg 制作</p>
+  <p>中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+
+</body>
+</html>

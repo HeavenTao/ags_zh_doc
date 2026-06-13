@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>工具函数 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html" class="active">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="工具函数">工具函数</h1>
+<p>AGS 提供了一些内置的工具函数用于常见操作。</p>
+<h2 id="文件函数">文件函数</h2>
+<h3 id="读取文件">读取文件</h3>
+<pre><code class="language-ts">import { readFile, readFileAsync } from "ags/file"
+
+function readFile(path: string): string
+function readFileAsync(path: string): Promise&lt;string&gt;</code></pre>
+<h3 id="写入文件">写入文件</h3>
+<pre><code class="language-ts">import { writeFile, writeFileAsync } from "ags/file"
+
+function writeFile(path: string, content: string): void
+function writeFileAsync(path: string, content: string): Promise&lt;void&gt;</code></pre>
+<h3 id="监控文件">监控文件</h3>
+<p>如果 <code>path</code> 是目录，则会递归监控。</p>
+<pre><code class="language-ts">import { monitorFile } from "ags/file"
+
+function monitorFile(
+  path: string,
+  callback: (file: string, event: Gio.FileMonitorEvent) =&gt; void,
+): Gio.FileMonitor</code></pre>
+<h2 id="超时和间隔">超时和间隔</h2>
+<pre><code class="language-ts">import { interval, timeout, idle, createPoll } from "ags/time"</code></pre>
+<p>你可以使用 JavaScript 原生的 <code>setTimeout</code> 或 <code>setInterval</code> 函数，它们返回</p>
+<p><a href="https://docs.gtk.org/glib/struct.Source.html">GLib.Source</a> 实例。</p>
+<p>或者，你也可以使用 AGS 提供的这些函数，它们返回 <code>Timer</code> 实例。</p>
+<pre><code class="language-ts">class Timer extends GObject.Object {
+  declare $signals: {
+    now(): void
+    cancelled(): void
+  }
+
+  cancel(): void
+}</code></pre>
+<h3 id="interval间隔">Interval（间隔）</h3>
+<p>立即执行函数，并每隔 <code>interval</code> 毫秒执行一次。</p>
+<pre><code class="language-ts">function interval(interval: number, callback?: () =&gt; void): Timer</code></pre>
+<h3 id="timeout超时">Timeout（超时）</h3>
+<p>在 <code>timeout</code> 毫秒后执行 <code>callback</code>。</p>
+<pre><code class="language-ts">function timeout(timeout: number, callback?: () =&gt; void): Timer</code></pre>
+<h3 id="idle空闲">Idle（空闲）</h3>
+<p>当没有更高优先级的事件待处理时执行 <code>callback</code>。</p>
+<pre><code class="language-ts">function idle(callback?: () =&gt; void): Timer</code></pre>
+<p>示例：</p>
+<pre><code class="language-ts">const timer = interval(1000, () =&gt; {
+  console.log("可选的回调")
+})
+
+timer.connect("now", () =&gt; {
+  console.log("滴答")
+})
+
+timer.connect("cancelled", () =&gt; {
+  console.log("已取消")
+})
+
+timer.cancel()</code></pre>
+<h3 id="createpoll">createPoll</h3>
+<p><code>createPoll</code> 创建一个信号，仅在至少有一个订阅者时才进行轮询。</p>
+<pre><code class="language-ts">function createPoll(
+  init: string,
+  interval: number,
+  exec: string | string[],
+): Accessor&lt;string&gt;
+
+function createPoll&lt;T&gt;(
+  init: T,
+  interval: number,
+  exec: string | string[],
+  transform: (stdout: string, prev: T) =&gt; T,
+): Accessor&lt;T&gt;
+
+function createPoll&lt;T&gt;(
+  init: T,
+  interval: number,
+  fn: (prev: T) =&gt; T | Promise&lt;T&gt;,
+): Accessor&lt;T&gt;</code></pre>
+<p>示例：</p>
+<pre><code class="language-tsx">function Counter() {
+  const counter = createPoll(0, 1000, (prev) =&gt; prev + 1)
+
+  return &lt;label label={counter((c) =&gt; c.toString())} /&gt;
+}</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+在底层，当传递命令作为第三个参数时，它使用
+<a href="#subprocess"><code>execAsync</code></a> 按原样运行给定的程序。它们<strong>不</strong>在 shell 环境中执行，<strong>不</strong>会展开像 <code>$HOME</code> 这样的环境变量，也<strong>不</strong>处理像 <code>&amp;&amp;</code> 和 <code>||</code> 这样的逻辑运算符。
+
+如果你需要 bash，请使用 bash 运行它们。
+
+``<code>ts
+createPoll("", 1000, "bash -c 'command $ENV_VAR &amp;&amp; command'")
+</code>``</p>
+</div>
+<h2 id="进程函数">进程函数</h2>
+<p>从 <code>ags/process</code> 导入：</p>
+<pre><code class="language-ts">import { subprocess, exec, execAsync, createSubprocess } from "ags/process"</code></pre>
+<h3 id="subprocess子进程">Subprocess（子进程）</h3>
+<p>你可以启动一个子进程，并在其输出到 stdout 或 stderr 时运行回调函数。返回的 <code>Process</code> 实例具有 <code>stdout</code> 和 <code>stderr</code> 信号。</p>
+<pre><code class="language-ts">class Process extends GObject.Object {
+  declare $signals: {
+    stdout(out: string): void
+    stderr(err: string): void
+    exit(code: number, signaled: boolean): void
+  }
+
+  kill(): void
+  write(str: string): void
+  async writeAsync(str: string): Promise&lt;void&gt;
+}
+
+function subprocess(args: {
+  cmd: string | string[]
+  out?: (stdout: string) =&gt; void
+  err?: (stderr: string) =&gt; void
+}): Process
+
+function subprocess(
+  cmd: string | string[],
+  onOut?: (stdout: string) =&gt; void,
+  onErr?: (stderr: string) =&gt; void,
+): Process</code></pre>
+<p>示例：</p>
+<pre><code class="language-ts">const proc = subprocess(
+  "some-command",
+  (out) =&gt; console.log(out), // 可选
+  (err) =&gt; console.error(err), // 可选
+)
+
+// 或使用信号
+const proc = subprocess("some-command")
+proc.connect("stdout", (_, out) =&gt; console.log(out))
+proc.connect("stderr", (_, err) =&gt; console.error(err))</code></pre>
+<h3 id="执行外部命令和脚本">执行外部命令和脚本</h3>
+<pre><code class="language-ts">function exec(cmd: string | string[]): string
+function execAsync(cmd: string | string[]): Promise&lt;string&gt;</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+通常应避免使用 <code>exec</code>，而使用其异步变体 <code>execAsync</code>，因为前者会阻塞 IO，意味着整个 Shell 会冻结并变得无响应，直到它返回。</p>
+</div>
+<p>示例：</p>
+<pre><code class="language-ts">try {
+  const out = exec("/path/to/script")
+  console.log(out)
+} catch (err) {
+  console.error(err)
+}
+
+execAsync(["bash", "-c", "/path/to/script.sh"])
+  .then((out) =&gt; console.log(out))
+  .catch((err) =&gt; console.error(err))</code></pre>
+<div class="warning-box">
+<p class="box-title">WARNING</p>
+<p>
+<code>subprocess</code>、<code>exec</code> 和 <code>execAsync</code> 按原样执行传递的可执行文件。它们<strong>不</strong>在 shell 环境中执行，<strong>不</strong>会展开像 <code>$HOME</code> 这样的环境变量，也<strong>不</strong>处理像 <code>&amp;&amp;</code> 和 <code>||</code> 这样的逻辑运算符。
+
+如果你需要 bash，请使用 bash 运行它们。
+
+``<code>ts
+exec(["bash", "-c", "command $ENV_VAR &amp;&amp; command"])
+exec("bash -c 'command $ENV_VAR' &amp;&amp; command")
+</code>``</p>
+</div>
+<h3 id="createsubprocess">createSubprocess</h3>
+<p><code>createSubprocess</code> 创建一个信号，在第一个订阅者出现时启动子进程，在订阅者数量降至零时终止子进程。</p>
+<pre><code class="language-ts">export function createSubprocess(
+  init: string,
+  exec: string | string[],
+): Accessor&lt;string&gt;
+
+export function createSubprocess&lt;T&gt;(
+  init: T,
+  exec: string | string[],
+  transform: (stdout: string, prev: T) =&gt; T,
+): Accessor&lt;T&gt;</code></pre>
+<p>示例：</p>
+<pre><code class="language-tsx">function Log() {
+  const log = createSubprocess("", "journalctl -f")
+
+  return &lt;label label={log} /&gt;
+}</code></pre>
+<h2 id="http-请求">HTTP 请求</h2>
+<pre><code class="language-ts">import { fetch, URL } from "ags/fetch"
+
+const url = new URL("https://some-site.com/api")
+url.searchParams.set("hello", "world")
+
+const res = await fetch(url, {
+  method: "POST",
+  body: JSON.stringify({ hello: "world" }),
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
+
+const json = await res.json()</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>

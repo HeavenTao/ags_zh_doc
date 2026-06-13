@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>快速开始 | AGS 中文教程</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <link rel="icon" href="https://aylur.github.io/astal/icon.svg">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <img src="https://aylur.github.io/astal/icon.svg" alt="AGS">
+      AGS <span class="logo-sub">中文教程</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">首页</a>
+      <a href="install.html">教程</a>
+      <a href="https://github.com/HeavenTao/ags_zh_doc" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <aside class="sidebar">
+    <h3>教程目录</h3>
+        <a href="install.html">安装</a>
+        <a href="quick-start.html" class="active">快速开始</a>
+        <a href="first-widgets.html">首个组件</a>
+        <a href="theming.html">主题</a>
+        <a href="app-cli.html">应用与 CLI</a>
+        <a href="utilities.html">工具函数</a>
+        <a href="resources.html">资源</a>
+        <a href="intrinsics.html">内建元素</a>
+        <a href="faq.html">常见问题</a>
+        <a href="examples.html">示例</a>
+        <a href="nix.html">Nix</a>
+        <a href="migration-guide.html">迁移指南</a>
+  </aside>
+  <main class="content">
+<h1 id="快速开始">快速开始</h1>
+<p>只需几行代码即可在你的屏幕上运行一个状态栏。</p>
+<h2 id="你将会用到的工具">你将会用到的工具</h2>
+<ul>
+<li><a href="https://gjs.guide/">Gnome JavaScript (GJS)</a> 是 JavaScript 运行时</li>
+<li><a href="https://aylur.github.io/astal/">Astal</a> 是一套库，可让你查询和与系统的各个部分进行交互</li>
+<li><a href="https://aylur.github.io/gnim/">Gnim</a> 是一个 GJS 库，允许你使用 JSX 编写组件</li>
+<li><a href="https://aylur.github.io/ags/">AGS</a> 是一个 CLI 工具，让你跳过搭建开发环境的步骤，直接以 TypeScript 编写桌面 Shell</li>
+</ul>
+<h2 id="单文件启动">单文件启动</h2>
+<p>首先在系统任意位置创建一个文件。</p>
+<div class="code-group">
+<div class="tabs">
+<input type="radio" name="cg-11" id="cgt-11-0" checked>
+<label for="cgt-11-0"><i class="devicon-typescript-plain"></i> mybar.tsx</label>
+</div><div class="blocks">
+<div class=" active"><pre><code class="language-tsx">import app from "ags/gtk4/app"
+import { Astal } from "ags/gtk4"
+import { createPoll } from "ags/time"
+
+app.start({
+  main() {
+    const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
+    const clock = createPoll("", 1000, "date")
+
+    return (
+      &lt;window visible anchor={TOP | LEFT | RIGHT}&gt;
+        &lt;label label={clock} /&gt;
+      &lt;/window&gt;
+    )
+  },
+})</code></pre></div>
+</div></div>
+<p>使用以下命令运行：</p>
+<pre><code class="language-sh">ags run ./mybar.tsx</code></pre>
+<p>或者，你可以添加 shebang 并使其可执行：</p>
+<pre><code class="language-ts">#!/usr/bin/env -S ags run
+import app from "ags/gtk4/app"
+
+app.start({
+  main() {
+    // 入口点
+  },
+})</code></pre>
+<pre><code class="language-sh">chmod +x mybar.tsx
+./mybar.tsx</code></pre>
+<p>要搭建 TypeScript 开发环境，请使用 <code>types</code> 命令：</p>
+<pre><code class="language-sh">ags types -u -d /path/to/project/root</code></pre>
+<h2 id="使用模板">使用模板</h2>
+<p>建议从模板开始，它会为你设置好 TypeScript 开发环境所需的文件。</p>
+<p>使用以下简单命令即可通过模板开始：</p>
+<pre><code class="language-sh">ags init -d /path/to/project</code></pre>
+<p>如果你使用 Nix，还有一个 flake 模板：</p>
+<pre><code class="language-sh">nix flake init --template github:aylur/ags</code></pre>
+  </main>
+</div>
+<footer class="footer">
+  <p>AGS 基于 GPL v3.0 许可证发布 | 中文翻译仅供参考，以 <a href="https://aylur.github.io/ags/" target="_blank" rel="noreferrer">官方文档</a> 为准</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="script.js"></script>
+</body>
+</html>
